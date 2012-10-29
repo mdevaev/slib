@@ -32,7 +32,6 @@ build() {
 	msg "Starting make..."
 
 	rm -rf $_gitname-build
-	mkdir $_gitname-build
 	cp -r $_gitname $_gitname-build
 	cd $_gitname-build
 
