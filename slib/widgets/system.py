@@ -10,6 +10,9 @@ from slib import tools
 import slib.tools.system
 import slib.tools.fmt
 
+from slib import validators
+import slib.validators.validAccessiblePath
+
 
 ##### Public methods #####
 @widgetlib.provides("server_status_table")
@@ -25,6 +28,7 @@ def serverStatus() :
 @widgetlib.provides("server_df_table")
 @widgetlib.required(css_list=("simple_table.css", "progress_bar.css"))
 def disksFree(*args_list) :
+	args_list = map(validators.fs.validAccessiblePath, args_list)
 	rows_list = []
 	for path in args_list :
 		label = ( os.path.basename(path) or path )
