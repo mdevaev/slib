@@ -11,7 +11,7 @@ import slib.tools.system
 import slib.tools.fmt
 
 from slib import validators
-import slib.validators.validAccessiblePath
+import slib.validators.fs
 
 
 ##### Public methods #####
