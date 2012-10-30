@@ -15,20 +15,20 @@ def maybeLink(url) :
 
 
 ###
-def progressBar(percent) :
+def progressBar(percent, css_list=("progress_internal", "progress_external")) :
 	return ( """
-			<div class="progress_internal">
-				<div class="progress_external" style="width: %d%%;">
+			<div class="%s">
+				<div class="%s" style="width: %d%%;">
 					&nbsp;
 				</div>
 			</div>
-		""" % (percent) )
+		""" % (css_list[0], css_list[1], percent) )
 
 
 ###
-def spoilerTitle(title) :
+def spoilerTitle(title, css_list=("script",)) :
 	div_id = tools.types.uniqueId(title)
-	return (div_id, "<a class=\"script\" href=\"javascript:toggleSpoiler('%s')\">%s</a>" % (div_id, title))
+	return (div_id, "<a class=\"%s\" href=\"javascript:toggleSpoiler('%s')\">%s</a>" % (css_list[0], div_id, title))
 
 def spoilerBody(div_id, text) :
 	return "<div style=\"display:none;\" id=\"%s\">%s</div>" % (div_id, text)
@@ -39,12 +39,12 @@ def spoiler(title, text) :
 
 
 ###
-def simpleTable(rows_list) :
+def simpleTable(rows_list, css_list=("simple",)) :
 	trs = ""
 	for items_list in rows_list :
 		items_list = map(lambda arg : constructTag("td", arg), items_list)
 		trs += "<tr>%s</tr>" % ("".join(items_list))
-	return "<table class=\"simple\">%s</table>" % (trs)
+	return "<table class=\"%s\">%s</table>" % (css_list[0], trs)
 
 def tableWithHeader(header_list, rows_list) :
 	header_list = map(lambda arg : "<b>%s</b>" % (arg), header_list)
