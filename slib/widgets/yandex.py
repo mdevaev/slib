@@ -79,7 +79,7 @@ def yaRuButton() :
 		""", )
 
 @widgetlib.provides("ya_share_buttons")
-@widgetlib.required(js_list=("http;//yandex.st/share/share.js",))
+@widgetlib.required(js_list=("http://yandex.st/share/share.js",))
 def yaShareButtons(*args_list) : # yaru,vkontakte,facebook,twitter,lj,gplus
 	return ( """
 			<div class="yashare-auto-init" data-yashareL10n="ru" data-yashareType="icon"
