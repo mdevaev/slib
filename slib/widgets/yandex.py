@@ -7,6 +7,23 @@ from slib import validators
 import slib.validators.common
 
 
+##### Public constants #####
+YA_SHARE_SERVICES_LIST = (
+	"yaru",
+	"vkontakte",
+	"facebook",
+	"twitter",
+	"odnoklassniki",
+	"moimir",
+	"lj",
+	"friendfeed",
+	"moikrug",
+	"gplus",
+	"pinterest",
+	"surfingbird",
+)
+
+
 ##### Public methods #####
 @widgetlib.provides("ya_metrika_informer")
 def metrikaInformer(site_id) :
@@ -80,9 +97,10 @@ def yaRuButton() :
 
 @widgetlib.provides("ya_share_buttons")
 @widgetlib.required(js_list=("http://yandex.st/share/share.js",))
-def yaShareButtons(*args_list) : # yaru,vkontakte,facebook,twitter,lj,gplus
+def yaShareButtons(services_list) :
+	services_list = map(lambda arg : validators.common.validRange(arg, YA_SHARE_SERVICES_LIST), validators.common.validStringList(services_list))
 	return ( """
 			<div class="yashare-auto-init" data-yashareL10n="ru" data-yashareType="icon"
 			data-yashareQuickServices="%s"></div>
-		""" % (",".join(args_list)), )
+		""" % (",".join(services_list)), )
 

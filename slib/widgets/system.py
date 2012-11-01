@@ -12,6 +12,7 @@ import slib.tools.system
 import slib.tools.fmt
 
 from slib import validators
+import slib.validators.common
 import slib.validators.fs
 
 
@@ -28,10 +29,10 @@ def serverStatus() :
 
 @widgetlib.provides("server_df_table")
 @widgetlib.required(css_list=("simple_table.css", "progress_bar.css"))
-def disksFree(*args_list) :
-	args_list = map(validators.fs.validAccessiblePath, args_list)
+def disksFree(dirs_list) :
+	dirs_list = map(validators.fs.validAccessiblePath, validators.common.validStringList(dirs_list))
 	rows_list = []
-	for path in args_list :
+	for path in dirs_list :
 		label = ( os.path.basename(path) or path )
 		(full, used) = tools.system.diskFree(path)
 		percent = 100 * used / full

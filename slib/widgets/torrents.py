@@ -19,6 +19,7 @@ import slib.validators.fs
 @widgetlib.required(css_list=("simple_table.css",))
 def torrentsList(torrents_dir_path, link_prefix) :
 	torrents_dir_path = validators.fs.validAccessiblePath(torrents_dir_path)
+	link_prefix = os.path.normpath(link_prefix)
 	size = 0
 	rows_list = []
 	for (torrent_file_name, meta_dict) in sorted(torrents.torrents(torrents_dir_path).items(), key=( lambda arg : arg[0] )) :
