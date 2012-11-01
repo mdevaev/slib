@@ -5,10 +5,10 @@ import os
 
 from slib import widgetlib
 from slib import html
-from slib import torrents
 
 from slib import tools
 import slib.tools.fmt
+import slib.tools.torrents
 
 from slib import validators
 import slib.validators.fs
