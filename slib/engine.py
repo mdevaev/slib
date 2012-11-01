@@ -13,6 +13,9 @@ import page
 import widgets
 import widgetlib
 import tools.types
+import validators.system
+
+from validators import ValidatorError
 
 
 ##### Public constants #####
@@ -70,20 +73,23 @@ class SlibServer(object) :
 	def processRequest(self, env_dict) :
 		args_dict = cgi.parse_qs(env_dict["QUERY_STRING"], keep_blank_values=True)
 		for (key, value) in args_dict.iteritems() :
-			args_dict[key] = value[0]
+			args_dict[validators.system.validVariableName(key)] = value[0]
 
 		page_name = args_dict.get("page", self.__default_page)
 		if page_name is None :
 			raise BadRequest(400, "Missing page name")
-		elif re.match(r"^[a-zA-Z0-9_-]+$", page_name) is None :
-			raise BadRequest(400, "Invalid page name")
-		elif not os.access(os.path.join(self.__pages_dir_path, page_name), os.F_OK) :
+
+		try :
+			page_name = validators.system.validPageName(page_name)
+		except ValidatorError, err :
+			raise BadRequest(400, str(err))
+
+		if not os.access(os.path.join(self.__pages_dir_path, page_name), os.F_OK) :
 			raise BadRequest(404, "Not found: %s" % (page_name))
 
 		with open(os.path.join(self.__pages_dir_path, page_name)) as page_file :
 			text = page_file.read()
-			text = page.replaceWidgetPlaceholders(text, args_dict)
-			text = page.replaceWidgets(text, self.__widgets_list, self.__css_dir_path, self.__js_dir_path)
+			text = page.replaceWidgets(text, self.__widgets_list, args_dict, self.__css_dir_path, self.__js_dir_path)
 			return (text, "text/html")
 
 	def logFail(self, env_dict) :

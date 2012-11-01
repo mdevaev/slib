@@ -13,10 +13,7 @@ CSS_PATTERN = "<style type=\"text/css\" media=\"all\">@import \"%s\";</style>"
 
 
 ##### Public methods #####
-def replaceWidgetPlaceholders(text, placeholders_dict) :
-	return text # TODO: implement this feature
-
-def replaceWidgets(text, widgets_list, css_dir_path, js_dir_path) :
+def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 	cache_dict = {}
 	for widget in widgets_list :
 		for name in widgetlib.widgetProvides(widget) :
