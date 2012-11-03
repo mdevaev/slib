@@ -86,7 +86,7 @@ def kfStatistics(config_file_path, profile_url) :
 	return (leaderboard_table, players_table)
 
 
-@widgetlib.provides("kf_player_stat_table")
+@widgetlib.provides("kf_player_stat_table", "kf_player_perks_table")
 @widgetlib.required(css_list=("simple_table.css", "progress_bar.css"))
 def kfPlayerStatistics(user_id, config_file_path) :
 	user_id = validators.common.validNumber(user_id, 1)
@@ -118,16 +118,29 @@ def kfPlayerStatistics(user_id, config_file_path) :
 			("Last hope", str(stat_dict["SoleSurvivorWavesStat"])),
 			("Kills", str(kills)),
 			("Time played", tools.fmt.formatTimeDelta(stat_dict["TotalPlayTime"])),
-			#map(str, calculateLevelProgress(BERSERK_LEVELS_MAP, stat_dict)),
-			#map(str, calculateLevelProgress(SHARPSHOOTER_LEVELS_MAP, stat_dict)),
-			#map(str, calculateLevelProgress(FIREBUG_LEVELS_MAP, stat_dict)),
-			#map(str, calculateLevelProgress(FIELD_MEDIC_LEVELS_MAP, stat_dict)),
-			#map(str, calculateLevelProgress(DEMOLITIONS_LEVELS_MAP, stat_dict)),
-			#map(str, calculateLevelProgress(SUPPORT_SPEC_LEVELS_MAP, stat_dict)),
-			#map(str, calculateLevelProgress(COMMANDO_LEVELS_MAP, stat_dict)),
 		])
 
-	return (player_stat_table,)
+	perks_list = []
+	for (perk, levels_map) in (
+			("Berserk", BERSERK_LEVELS_MAP),
+			("Sharpshooter", SHARPSHOOTER_LEVELS_MAP),
+			("Firebug", FIREBUG_LEVELS_MAP),
+			("Field medic", FIELD_MEDIC_LEVELS_MAP),
+			("Demolitions", DEMOLITIONS_LEVELS_MAP),
+			("Suppoer spec", SUPPORT_SPEC_LEVELS_MAP),
+			("Commando", COMMANDO_LEVELS_MAP) ) :
+
+		(level, percent) = calculateLevelProgress(levels_map, stat_dict)
+		max_percent = calculateProgress(levels_map, stat_dict)
+		perks_list.append([
+				perk,
+				str(level),
+				{ "width" : "150px", "body" : html.progressBar(percent) },
+				{ "width" : "150px", "body" : html.progressBar(max_percent) },
+			])
+	player_perks_table = html.tableWithHeader(["Perk", "Level", "Until the next", "Until the max"], perks_list)
+
+	return (player_stat_table, player_perks_table)
 
 
 ##### Private methods #####
