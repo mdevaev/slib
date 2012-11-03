@@ -43,6 +43,14 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 			if cache_dict[name].get(args_tuple, None) is None :
 				try :
 					args_list = list(args_tuple)
+					for (index, item) in enumerate(args_list) :
+						if item.startswith("$") :
+							variable = item[1:]
+							if variable in args_dict :
+								args_list[index] = args_dict[variable]
+							else :
+								raise RuntimeError("Missing required argument \"%s\"" % (variable))
+
 					result_dict = widget(*args_list)
 					required_dict = widgetlib.widgetRequired(widget)
 					css_list += required_dict["css"]
