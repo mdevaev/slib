@@ -68,9 +68,13 @@ def communityUserRequest(user_id, api_key) :
 	url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%d" % (api_key, user_id)
 	request = urllib2.Request(url=url)
 	web_file = urllib2.build_opener().open(request, timeout=5)
-	user_dict = cjson.decode(web_file.read())["response"]["players"][0]
-	get_link = ( lambda arg : arg.replace("\\/", "/") )
 
+	players_list = cjson.decode(web_file.read())["response"]["players"]
+	if len(players_list) != 1 :
+		raise RuntimeError("Invalid Steam ID")
+	user_dict = players_list[0]
+
+	get_link = ( lambda arg : arg.replace("\\/", "/") )
 	avatar_url = get_link(user_dict["avatarfull"])
 	player_name = user_dict["personaname"]
 	profile_url = get_link(user_dict["profileurl"])
