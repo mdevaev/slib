@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
+import urllib2
+import cjson
 import SourceLib
 
 from slib import widgetlib
@@ -10,6 +12,7 @@ from slib import tools
 import slib.tools.fmt
 
 from slib import validators
+import slib.validators.common
 import slib.validators.network
 
 
@@ -54,4 +57,27 @@ def sourcePlayersNumber(host_name, port) :
 	server = SourceLib.SourceQuery.SourceQuery(host_name, port)
 	info_dict = server.info()
 	return ("%d / %d" % (info_dict["numplayers"], info_dict["maxplayers"]),)
+
+
+###
+@widgetlib.provides("steam_player_avatar", "steam_player_name", "steam_player_profile")
+def communityUserRequest(user_id, api_key) :
+	user_id = validators.common.validNumber(user_id, 1)
+	api_key = validators.common.validHexString(api_key)
+
+	url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%d" % (api_key, user_id)
+	request = urllib2.Request(url=url)
+	web_file = urllib2.build_opener().open(request, timeout=5)
+	user_dict = cjson.decode(web_file.read())["response"]["players"][0]
+	get_link = ( lambda arg : arg.replace("\\/", "/") )
+
+	avatar_url = get_link(user_dict["avatarfull"])
+	player_name = user_dict["personaname"]
+	profile_url = get_link(user_dict["profileurl"])
+
+	return (
+		html.image(avatar_url),
+		player_name,
+		profile_url,
+	)
 
