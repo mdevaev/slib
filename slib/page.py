@@ -22,27 +22,38 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 	css_list = []
 	js_list = []
 
-	for match in re.finditer(r"{([a-zA-Z]+[^}\n]+)}", text) :
+	for match in re.finditer(r"{([a-zA-Z_]+[^}\n]+)}", text) :
 		macros_tuple = tuple(match.group(1).split())
 		name = macros_tuple[0]
 		args_tuple = macros_tuple[1:]
-		widget = cache_dict.get(name, {}).get(None, None)
-		if widget is None :
-			continue
 
-		if cache_dict[name].get(args_tuple, None) is None :
-			try :
-				result_dict = widget(*args_tuple)
-				required_dict = widgetlib.widgetRequired(widget)
-				css_list += required_dict["css"]
-				js_list += required_dict["js"]
-			except Exception, err :
-				message = "{%s :: %s: %s}" % (name, type(err).__name__, str(err))
-				result_dict = dict.fromkeys(widgetlib.widgetProvides(widget), message)
-			for (key, value) in result_dict.iteritems() :
-				cache_dict[key][args_tuple] = value
+		if name.startswith("__") :
+			if name == "__include_css__" :
+				css_list += list(args_tuple)
+			elif name == "__include_js__" :
+				js_list += list(args_tuple)
+			else :
+				continue
+			text = text.replace("{%s}" % (match.group(1)), "")
+		else :
+			widget = cache_dict.get(name, {}).get(None, None)
+			if widget is None :
+				continue
 
-		text = text.replace("{%s}" % (match.group(1)), cache_dict[name][args_tuple])
+			if cache_dict[name].get(args_tuple, None) is None :
+				try :
+					args_list = list(args_tuple)
+					result_dict = widget(*args_list)
+					required_dict = widgetlib.widgetRequired(widget)
+					css_list += required_dict["css"]
+					js_list += required_dict["js"]
+				except Exception, err :
+					message = "{%s :: %s: %s}" % (name, type(err).__name__, str(err))
+					result_dict = dict.fromkeys(widgetlib.widgetProvides(widget), message)
+				for (key, value) in result_dict.iteritems() :
+					cache_dict[key][args_tuple] = value
+
+			text = text.replace("{%s}" % (match.group(1)), cache_dict[name][args_tuple])
 
 	css = "\n".join(map(lambda arg : makeResourceLink(arg, css_dir_path, CSS_PATTERN), list(set(css_list))))
 	js = "\n".join(map(lambda arg : makeResourceLink(arg, js_dir_path, JS_PATTERN), list(set(js_list))))
