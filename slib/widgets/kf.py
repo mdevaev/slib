@@ -19,26 +19,14 @@ import slib.validators.fs
 def kfStatistics(config_file_path) :
 	config_file_path = validators.fs.validAccessiblePath(config_file_path)
 
-	config = ConfigParser.ConfigParser()
-	config.optionxform = str
-	config.read(config_file_path)
-	stat_dict = {}
-	for section in config.sections() :
-		player_name = config.get(section, "PlayerName")
-		stat_dict[player_name] = {}
-		for option in config.options(section) :
-			value = config.get(section, option)
-			try :
-				value = int(value)
-			except ValueError : pass
-			stat_dict[player_name][option] = value
+	stat_dict = serverPerksStat(config_file_path)
 
 	count = 1
 	leaderboard_list = []
-	for (player_name, player_stat_dict) in sorted(stat_dict.items(), key=( lambda arg : -arg[1]["KillsStat"])) :
+	for (user_id, player_stat_dict) in sorted(stat_dict.items(), key=( lambda arg : -arg[1]["KillsStat"])) :
 		leaderboard_list.append([
 				str(count),
-				{ "nowrap" : None, "body" : player_name },
+				{ "nowrap" : None, "body" : player_stat_dict["PlayerName"] },
 				str(player_stat_dict["KillsStat"]),
 				tools.fmt.formatTimeDelta(player_stat_dict["TotalPlayTime"])
 			])
@@ -49,7 +37,7 @@ def kfStatistics(config_file_path) :
 
 	count = 1
 	players_list = []
-	for (player_name, player_stat_dict) in sorted(stat_dict.items(), key=( lambda arg : arg[0].lower() )) :
+	for (user_id, player_stat_dict) in sorted(stat_dict.items(), key=( lambda arg : arg[1]["PlayerName"].lower() )) :
 		perk_percent = ( lambda option, limit : min(100 * player_stat_dict[option] / limit, 100) )
 		perk_progress = ( lambda percent : { "width" : "13%", "body" : html.progressBar(percent) } )
 
@@ -70,7 +58,7 @@ def kfStatistics(config_file_path) :
 
 		players_list.append([
 				str(count),
-				{ "nowrap" : None, "body" : "%s %s%s" % (spoiler_title, player_name, stat_spoiler) },
+				{ "nowrap" : None, "body" : "%s %s%s" % (spoiler_title, player_stat_dict["PlayerName"], stat_spoiler) },
 				perk_progress(berserk),
 				perk_progress(sharpshooter),
 				perk_progress(firebug),
@@ -85,4 +73,24 @@ def kfStatistics(config_file_path) :
 	players_table = html.tableWithHeader(players_header_list, players_list)
 
 	return (leaderboard_table, players_table)
+
+
+##### Private methods #####
+def serverPerksStat(config_file_path) :
+	config = ConfigParser.ConfigParser()
+	config.optionxform = str
+	config.read(config_file_path)
+
+	stat_dict = {}
+	for section in config.sections() :
+		user_id = int(section.split()[0]) + 76561197960265728 # XXX: Fucking linux magic
+		stat_dict[user_id] = {}
+		for option in config.options(section) :
+			value = config.get(section, option)
+			try :
+				value = int(value)
+			except ValueError : pass
+			stat_dict[user_id][option] = value
+
+	return stat_dict
 
