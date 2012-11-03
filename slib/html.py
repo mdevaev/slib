@@ -57,6 +57,11 @@ def statusTable(table_list) :
 	return simpleTable(rows_list)
 
 
+###
+def image(url) :
+	return "<img src=\"%s\">" % (url)
+
+
 ##### Private methods #####
 def constructTag(tag, body) :
 	if isinstance(body, dict) :
