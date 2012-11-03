@@ -104,12 +104,16 @@ class SlibServer(object) :
 
 ##### Public methods #####
 def main(default_page = DEFAULT_PAGE, pages_dir_path = PAGES_DIR, css_dir_path = CSS_DIR, js_dir_path = JS_DIR, widgets_list = ()) :
-	from flup.server.fcgi import WSGIServer
-
 	path = os.path.dirname(sys.argv[0])
 	if len(path) != 0 :
 		os.chdir(path)
-
 	widgets_list = ( widgets_list or widgetlib.buildWidgetsTree(widgets)[1].values() )
-	WSGIServer(SlibServer(default_page, pages_dir_path, css_dir_path, js_dir_path, widgets_list).application).run()
+	app = SlibServer(default_page, pages_dir_path, css_dir_path, js_dir_path, widgets_list).application
+
+	if "local" in sys.argv[1:] :
+		import paste.httpserver
+		paste.httpserver.serve(app, port=8080)
+	else :
+		from flup.server.fcgi import WSGIServer
+		WSGIServer(app).run()
 
