@@ -100,7 +100,10 @@ def kfPlayerStatistics(user_id, config_file_path) :
 	wins = stat_dict["WinsCount"]
 	losts = stat_dict["LostsCount"]
 	battles = wins + losts
+	kills = stat_dict["KillsStat"]
+	efficiency = float(kills) / float(battles)
 	skill_factor = float(wins) / float(battles)
+
 	skill_factor_text = ( """
 			<div style="float:left; text-align:left;">%.2f&nbsp;</div>
 			<div style="float:right; text-align:right; width:100px">%s</div>
@@ -111,8 +114,9 @@ def kfPlayerStatistics(user_id, config_file_path) :
 			("Wins", str(wins)),
 			("Losts", str(losts)),
 			("Skill factor", skill_factor_text),
+			("Efficiency", "%2.f" % (efficiency)),
 			("Last hope", str(stat_dict["SoleSurvivorWavesStat"])),
-			("Kills", str(stat_dict["KillsStat"])),
+			("Kills", str(kills)),
 			("Time played", tools.fmt.formatTimeDelta(stat_dict["TotalPlayTime"])),
 			#map(str, calculateLevelProgress(BERSERK_LEVELS_MAP, stat_dict)),
 			#map(str, calculateLevelProgress(SHARPSHOOTER_LEVELS_MAP, stat_dict)),
