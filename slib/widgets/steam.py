@@ -74,10 +74,10 @@ def communityUserRequest(user_id, api_key) :
 		raise RuntimeError("Invalid Steam ID")
 	user_dict = players_list[0]
 
-	get_link = ( lambda arg : arg.replace("\\/", "/") )
-	avatar_url = get_link(user_dict["avatarfull"])
-	player_name = user_dict["personaname"]
-	profile_url = get_link(user_dict["profileurl"])
+	unslash = ( lambda arg : arg.replace("\\/", "/") )
+	avatar_url = unslash(user_dict["avatarfull"])
+	player_name = unslash(user_dict["personaname"])
+	profile_url = unslash(user_dict["profileurl"])
 
 	return (
 		html.image(avatar_url),
