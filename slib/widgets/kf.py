@@ -55,7 +55,7 @@ def kfStatistics(config_file_path, profile_url) :
 
 
 @widgetlib.provides("kf_player_stat_table", "kf_player_perks_table", "kf_player_rating_table")
-@widgetlib.required(css_list=("simple_table.css", "progress_bar.css"))
+@widgetlib.required(css_list=("simple_table.css", "progress_bar.css", "font.css"))
 def kfPlayerStatistics(user_id, config_file_path) :
 	user_id = validators.common.validNumber(user_id, 1)
 	config_file_path = validators.fs.validAccessiblePath(config_file_path)
@@ -209,12 +209,12 @@ def playerRatingTable(stat_dict, user_id) :
 	(sorted_list, index) = sortedPlayers(stat_dict, ( lambda arg : -arg[1]["KillsStat"] ), user_id)
 	assert index != -1
 	players_list = []
-	wrap_bold = ( lambda text, count : "<b>%s</b>" % (str(text)) if count == index else str(text) )
+	wrap_special = ( lambda text, count : "<font class=\"special\">%s</font>" % (str(text)) if count == index else str(text) )
 	for (count, stat_user_id, player_stat_dict) in sorted_list[index-2:index] + sorted_list[index:index+3] :
 		players_list.append([
-				wrap_bold(count + 1, count),
-				{ "nowrap" : None, "body" : wrap_bold(player_stat_dict["PlayerName"], count) },
-				wrap_bold(player_stat_dict["KillsStat"], count),
+				wrap_special(count + 1, count),
+				{ "nowrap" : None, "body" : wrap_special(player_stat_dict["PlayerName"], count) },
+				wrap_special(player_stat_dict["KillsStat"], count),
 			])
 		count += 1
 	return html.tableWithHeader(["N", "Name", "Kills"], players_list)
