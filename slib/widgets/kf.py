@@ -48,45 +48,13 @@ def kfStatistics(config_file_path, profile_url) :
 
 	stat_dict = serverPerksStat(config_file_path)
 
-	count = 1
-	leaderboard_list = []
-	for (user_id, player_stat_dict) in sorted(stat_dict.items(), key=( lambda arg : -arg[1]["KillsStat"])) :
-		leaderboard_list.append([
-				str(count),
-				{ "nowrap" : None, "body" : player_stat_dict["PlayerName"] },
-				str(player_stat_dict["KillsStat"]),
-				tools.fmt.formatTimeDelta(player_stat_dict["TotalPlayTime"])
-			])
-		if count == 5 :
-			break
-		count += 1
-	leaderboard_table = html.tableWithHeader(["N", "Name", "Kills", "Time"], leaderboard_list)
-
-	count = 1
-	players_list = []
-	for (user_id, player_stat_dict) in sorted(stat_dict.items(), key=( lambda arg : arg[1]["PlayerName"].lower() )) :
-		perk_progress = ( lambda levels_map : { "width" : "13%", "body" : html.progressBar(calculateProgress(levels_map, player_stat_dict)) } )
-		player_name = "<a href=\"%s\">&raquo;</a>&nbsp;%s" % (profile_url % { "user_id" : user_id }, player_stat_dict["PlayerName"])
-		players_list.append([
-				str(count),
-				{ "nowrap" : None, "body" : player_name },
-				perk_progress(BERSERK_LEVELS_MAP),
-				perk_progress(SHARPSHOOTER_LEVELS_MAP),
-				perk_progress(FIREBUG_LEVELS_MAP),
-				perk_progress(FIELD_MEDIC_LEVELS_MAP),
-				perk_progress(DEMOLITIONS_LEVELS_MAP),
-				perk_progress(SUPPORT_SPEC_LEVELS_MAP),
-				perk_progress(COMMANDO_LEVELS_MAP),
-			])
-		count += 1
-
-	players_header_list = ["N", "Name", "Berserk", "Sharpshooter", "Firebug", "FieldMedic", "Demolitions", "SupportSpec", "Commando"]
-	players_table = html.tableWithHeader(players_header_list, players_list)
-
-	return (leaderboard_table, players_table)
+	return (
+		serverLeaderboardTable(stat_dict),
+		serverPerksTable(stat_dict, profile_url),
+	)
 
 
-@widgetlib.provides("kf_player_stat_table", "kf_player_perks_table")
+@widgetlib.provides("kf_player_stat_table", "kf_player_perks_table", "kf_player_rating_table")
 @widgetlib.required(css_list=("simple_table.css", "progress_bar.css"))
 def kfPlayerStatistics(user_id, config_file_path) :
 	user_id = validators.common.validNumber(user_id, 1)
@@ -95,52 +63,12 @@ def kfPlayerStatistics(user_id, config_file_path) :
 	stat_dict = serverPerksStat(config_file_path)
 	if not user_id in stat_dict :
 		raise RuntimeError("Invalid Steam ID")
-	stat_dict = stat_dict[user_id]
 
-	wins = stat_dict["WinsCount"]
-	losts = stat_dict["LostsCount"]
-	battles = wins + losts
-	kills = stat_dict["KillsStat"]
-	efficiency = float(kills) / float(battles)
-	skill_factor = float(wins) / float(battles)
-
-	skill_factor_text = ( """
-			<div style="float:left; text-align:left;">%.2f&nbsp;</div>
-			<div style="float:right; text-align:right; width:100px">%s</div>
-		""" % (skill_factor, html.progressBar(skill_factor * 100)) )
-
-	player_stat_table = html.statusTable([
-			("Battles", str(battles)),
-			("Wins", str(wins)),
-			("Losts", str(losts)),
-			("Skill factor", skill_factor_text),
-			("Efficiency", "%2.f" % (efficiency)),
-			("Last hope", str(stat_dict["SoleSurvivorWavesStat"])),
-			("Kills", str(kills)),
-			("Time played", tools.fmt.formatTimeDelta(stat_dict["TotalPlayTime"])),
-		])
-
-	perks_list = []
-	for (perk, levels_map) in (
-			("Berserk", BERSERK_LEVELS_MAP),
-			("Sharpshooter", SHARPSHOOTER_LEVELS_MAP),
-			("Firebug", FIREBUG_LEVELS_MAP),
-			("Field medic", FIELD_MEDIC_LEVELS_MAP),
-			("Demolitions", DEMOLITIONS_LEVELS_MAP),
-			("Suppoer spec", SUPPORT_SPEC_LEVELS_MAP),
-			("Commando", COMMANDO_LEVELS_MAP) ) :
-
-		(level, percent) = calculateLevelProgress(levels_map, stat_dict)
-		max_percent = calculateProgress(levels_map, stat_dict)
-		perks_list.append([
-				perk,
-				str(level),
-				{ "width" : "150px", "body" : html.progressBar(percent) },
-				{ "width" : "150px", "body" : html.progressBar(max_percent) },
-			])
-	player_perks_table = html.tableWithHeader(["Perk", "Level", "Until the next", "Until the max"], perks_list)
-
-	return (player_stat_table, player_perks_table)
+	return (
+		playerStatisticsTable(stat_dict, user_id),
+		playerPerksTable(stat_dict, user_id),
+		playerRatingTable(stat_dict, user_id),
+	)
 
 
 ##### Private methods #####
@@ -162,6 +90,17 @@ def serverPerksStat(config_file_path) :
 
 	return stat_dict
 
+def sortedPlayers(stat_dict, key, user_id = None) :
+	sorted_players_list = sorted(stat_dict.items(), key=key)
+	index = -1
+	for count in xrange(len(sorted_players_list)) :
+		if sorted_players_list[count][0] == user_id :
+			index = count
+		sorted_players_list[count] = [count] + list(sorted_players_list[count])
+	return (sorted_players_list, index)
+
+
+###
 def calculateProgress(levels_map, stat_dict) :
 	percent = 0
 	for (key, levels_list) in levels_map.iteritems() :
@@ -179,4 +118,104 @@ def calculateLevelProgress(levels_map, stat_dict) :
 				percent += min(100 * stat_dict[key] / for_next_level, 100)
 				break
 	return (result_level, percent / len(levels_map))
+
+
+#####
+def serverLeaderboardTable(stat_dict, limit = 5) :
+	count = 1
+	leaderboard_list = []
+	for (user_id, player_stat_dict) in sorted(stat_dict.items(), key=( lambda arg : -arg[1]["KillsStat"] )) :
+		leaderboard_list.append([
+				str(count),
+				{ "nowrap" : None, "body" : player_stat_dict["PlayerName"] },
+				str(player_stat_dict["KillsStat"]),
+				tools.fmt.formatTimeDelta(player_stat_dict["TotalPlayTime"])
+			])
+		if count == limit :
+			break
+		count += 1
+	return html.tableWithHeader(["N", "Name", "Kills", "Time"], leaderboard_list)
+
+def serverPerksTable(stat_dict, profile_url) :
+	count = 1
+	players_list = []
+	for (user_id, player_stat_dict) in sorted(stat_dict.items(), key=( lambda arg : arg[1]["PlayerName"].lower() )) :
+		perk_progress = ( lambda levels_map : { "width" : "13%", "body" : html.progressBar(calculateProgress(levels_map, player_stat_dict)) } )
+		player_name = "<a href=\"%s\">&raquo;</a>&nbsp;%s" % (profile_url % { "user_id" : user_id }, player_stat_dict["PlayerName"])
+		players_list.append([
+				str(count),
+				{ "nowrap" : None, "body" : player_name },
+				perk_progress(BERSERK_LEVELS_MAP),
+				perk_progress(SHARPSHOOTER_LEVELS_MAP),
+				perk_progress(FIREBUG_LEVELS_MAP),
+				perk_progress(FIELD_MEDIC_LEVELS_MAP),
+				perk_progress(DEMOLITIONS_LEVELS_MAP),
+				perk_progress(SUPPORT_SPEC_LEVELS_MAP),
+				perk_progress(COMMANDO_LEVELS_MAP),
+			])
+		count += 1
+	players_header_list = ["N", "Name", "Berserk", "Sharpshooter", "Firebug", "FieldMedic", "Demolitions", "SupportSpec", "Commando"]
+	return html.tableWithHeader(players_header_list, players_list)
+
+
+###
+def playerStatisticsTable(stat_dict, user_id) :
+	player_stat_dict = stat_dict[user_id]
+
+	wins = player_stat_dict["WinsCount"]
+	losts = player_stat_dict["LostsCount"]
+	battles = wins + losts
+	kills = player_stat_dict["KillsStat"]
+	efficiency = float(kills) / float(battles)
+	skill_factor = float(wins) / float(battles)
+
+	skill_factor_text = ( """
+			<div style="float:left; text-align:left;">%.2f&nbsp;</div>
+			<div style="float:right; text-align:right; width:100px">%s</div>
+		""" % (skill_factor, html.progressBar(skill_factor * 100)) )
+
+	return html.statusTable([
+			("Battles", str(battles)),
+			("Wins", str(wins)),
+			("Losts", str(losts)),
+			("Skill factor", skill_factor_text),
+			("Efficiency", "%2.f" % (efficiency)),
+			("Last hope", str(player_stat_dict["SoleSurvivorWavesStat"])),
+			("Kills", str(kills)),
+			("Time played", tools.fmt.formatTimeDelta(player_stat_dict["TotalPlayTime"])),
+		])
+
+def playerPerksTable(stat_dict, user_id) :
+	perks_list = []
+	for (perk, levels_map) in (
+			("Berserk", BERSERK_LEVELS_MAP),
+			("Sharpshooter", SHARPSHOOTER_LEVELS_MAP),
+			("Firebug", FIREBUG_LEVELS_MAP),
+			("Field medic", FIELD_MEDIC_LEVELS_MAP),
+			("Demolitions", DEMOLITIONS_LEVELS_MAP),
+			("Suppoer spec", SUPPORT_SPEC_LEVELS_MAP),
+			("Commando", COMMANDO_LEVELS_MAP) ) :
+		(level, percent) = calculateLevelProgress(levels_map, stat_dict[user_id])
+		max_percent = calculateProgress(levels_map, stat_dict[user_id])
+		perks_list.append([
+				perk,
+				str(level),
+				{ "width" : "150px", "body" : html.progressBar(percent) },
+				{ "width" : "150px", "body" : html.progressBar(max_percent) },
+			])
+	return html.tableWithHeader(["Perk", "Level", "Until the next", "Until the max"], perks_list)
+
+def playerRatingTable(stat_dict, user_id) :
+	(sorted_list, index) = sortedPlayers(stat_dict, ( lambda arg : -arg[1]["KillsStat"] ), user_id)
+	assert index != -1
+	players_list = []
+	wrap_bold = ( lambda text, count : "<b>%s</b>" % (str(text)) if count == index else str(text) )
+	for (count, stat_user_id, player_stat_dict) in sorted_list[index-2:index] + sorted_list[index:index+3] :
+		players_list.append([
+				wrap_bold(count + 1, count),
+				{ "nowrap" : None, "body" : wrap_bold(player_stat_dict["PlayerName"], count) },
+				wrap_bold(player_stat_dict["KillsStat"], count),
+			])
+		count += 1
+	return html.tableWithHeader(["N", "Name", "Kills"], players_list)
 
