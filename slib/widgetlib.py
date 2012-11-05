@@ -29,7 +29,7 @@ def widgetProvides(method) :
 ###
 def required(css_list=(), js_list=()) :
 	assert isinstance(css_list, (list, tuple)), "Required CSS must be a list"
-	assert isinstance(js_list, (list, tuple)), "Rquired JS must be a list"
+	assert isinstance(js_list, (list, tuple)), "Required JS must be a list"
 	def make_method(method) :
 		setattr(method, "is_widget", True)
 		setattr(method, "widget_required_css", list(css_list))
