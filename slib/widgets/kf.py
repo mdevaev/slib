@@ -39,6 +39,22 @@ COMMANDO_LEVELS_MAP = {
 }
 
 
+RANKS_LIST = (
+	(0, 0, "Private"),
+	(1, 5, "Junior Lieutenant"),
+	(2, 10, "Lieutenant"),
+	(3, 20, "Senior Lieutenant"),
+	(4, 30, "Captain"),
+	(5, 40, "Major"),
+	(6, 50, "Lieutenant Colonel"),
+	(7, 60, "Colonel"),
+	(8, 70, "Major General"),
+	(9, 80, "Lieutenant General"),
+	(10, 90, "Colonel General"),
+	(11, 100, "General of the Army"),
+	(12, 200, "Marshal"),
+)
+
 ##### Public methods #####
 @widgetlib.provides("kf_leaderboard_table", "kf_perks_table")
 @widgetlib.required(css_list=("simple_table.css", "progress_bar.css"))
@@ -68,6 +84,20 @@ def kfPlayerStatistics(user_id, config_file_path) :
 		playerStatisticsTable(stat_dict, user_id),
 		playerPerksTable(stat_dict, user_id),
 		playerRatingTable(stat_dict, user_id),
+	)
+
+@widgetlib.provides("kf_player_rank")
+def kfPlayerAchievement(user_id, config_file_path, rank_img_url) :
+	user_id = validators.common.validNumber(user_id, 1)
+	config_file_path = validators.fs.validAccessiblePath(config_file_path)
+	# FIXME: No validation for rank img url!
+
+	stat_dict = serverPerksStat(config_file_path)
+	if not user_id in stat_dict :
+		raise RuntimeError("Invalid Steam ID")
+
+	return (
+		 playerRank(stat_dict, user_id, rank_img_url),
 	)
 
 
@@ -218,4 +248,24 @@ def playerRatingTable(stat_dict, user_id) :
 			])
 		count += 1
 	return html.tableWithHeader(["N", "Name", "Kills"], players_list)
+
+def playerRank(stat_dict, user_id, img_url) :
+	wins = stat_dict[user_id]["WinsCount"]
+	(rank_index, _, player_rank) = RANKS_LIST[0]
+	(prev, need_next) = (0, wins)
+	for (index, need, title) in RANKS_LIST[1:] :
+		if wins > need :
+			player_rank = title
+			rank_index = index
+			prev = need
+		else :
+			need_next = need
+			break
+	rank_img = html.image(img_url % { "rank_index" : rank_index })
+	rank_progress = html.progressBar(100 * (wins - prev) / (need_next - prev))
+	return """
+			%s<br><br>
+            <div style="float:left; text-align:left;">%s</div>
+            <div style="float:right; text-align:right; width:80px;">%s</div>
+		""" % (player_rank, rank_img, rank_progress)
 
