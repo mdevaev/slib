@@ -58,8 +58,8 @@ def statusTable(table_list) :
 
 
 ###
-def image(url) :
-	return "<img src=\"%s\">" % (url)
+def image(url, alt = None) :
+	return "<img alt=\"%s\" src=\"%s\">" % ((alt or url), url)
 
 
 ##### Private methods #####
