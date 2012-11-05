@@ -16,6 +16,8 @@ def provides(*macroses_list) :
 			results_list = method(*args_list, **kwargs_dict)
 			assert isinstance(results_list, (list, tuple)), "Invalid result type"
 			assert len(macroses_list) == len(results_list), "Invalid results count"
+			for result in results_list :
+				assert isinstance(result, (str, unicode)), "Invalid macros result"
 			return dict([(macroses_list[count], results_list[count]) for count in xrange(len(macroses_list))])
 		return decorator.decorator(wrap, method)
 	return make_method
