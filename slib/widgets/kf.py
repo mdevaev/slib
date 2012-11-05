@@ -201,7 +201,7 @@ def playerStatisticsTable(stat_dict, user_id) :
 
 	skill_factor_text = ( """
 			<div style="float:left; text-align:left;">%.2f&nbsp;</div>
-			<div style="float:right; text-align:right; width:100px">%s</div>
+			<div style="float:right; text-align:right; width:70px;">%s</div>
 		""" % (skill_factor, html.progressBar(skill_factor * 100)) )
 
 	return html.statusTable([
