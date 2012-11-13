@@ -40,19 +40,19 @@ COMMANDO_LEVELS_MAP = {
 
 
 RANKS_LIST = (
-	(0, 0, "Private"),
-	(1, 5, "Junior Lieutenant"),
-	(2, 10, "Lieutenant"),
-	(3, 20, "Senior Lieutenant"),
-	(4, 30, "Captain"),
-	(5, 40, "Major"),
-	(6, 50, "Lieutenant Colonel"),
-	(7, 60, "Colonel"),
-	(8, 70, "Major General"),
-	(9, 80, "Lieutenant General"),
-	(10, 90, "Colonel General"),
-	(11, 100, "General of the Army"),
-	(12, 200, "Marshal"),
+	(0, "Private"),
+	(5, "Junior Lieutenant"),
+	(10, "Lieutenant"),
+	(20, "Senior Lieutenant"),
+	(30, "Captain"),
+	(40, "Major"),
+	(50, "Lieutenant Colonel"),
+	(60, "Colonel"),
+	(70, "Major General"),
+	(80, "Lieutenant General"),
+	(90, "Colonel General"),
+	(100, "General of the Army"),
+	(200, "Marshal"),
 )
 
 ##### Public methods #####
@@ -223,7 +223,7 @@ def playerPerksTable(stat_dict, user_id) :
 			("Firebug", FIREBUG_LEVELS_MAP),
 			("Field medic", FIELD_MEDIC_LEVELS_MAP),
 			("Demolitions", DEMOLITIONS_LEVELS_MAP),
-			("Suppoer spec", SUPPORT_SPEC_LEVELS_MAP),
+			("Support spec", SUPPORT_SPEC_LEVELS_MAP),
 			("Commando", COMMANDO_LEVELS_MAP) ) :
 		(level, percent) = calculateLevelProgress(levels_map, stat_dict[user_id])
 		max_percent = calculateProgress(levels_map, stat_dict[user_id])
@@ -240,7 +240,7 @@ def playerRatingTable(stat_dict, user_id) :
 	assert index != -1
 	players_list = []
 	wrap_special = ( lambda text, count : "<font class=\"special\">%s</font>" % (str(text)) if count == index else str(text) )
-	for (count, stat_user_id, player_stat_dict) in sorted_list[index-2:index] + sorted_list[index:index+3] :
+	for (count, stat_user_id, player_stat_dict) in sorted_list[max(index-2, 0):index+3] :
 		players_list.append([
 				wrap_special(count + 1, count),
 				{ "nowrap" : None, "body" : wrap_special(player_stat_dict["PlayerName"], count) },
@@ -251,21 +251,27 @@ def playerRatingTable(stat_dict, user_id) :
 
 def playerRank(stat_dict, user_id, img_url) :
 	wins = stat_dict[user_id]["WinsCount"]
-	(rank_index, _, player_rank) = RANKS_LIST[0]
-	(prev, need_next) = (0, wins)
-	for (index, need, title) in RANKS_LIST[1:] :
-		if wins > need :
+
+	rank_index = 0
+	player_rank = RANKS_LIST[0][1]
+	prev = 0
+	need_next = wins
+
+	for (index, (need, title)) in enumerate(RANKS_LIST[1:]) :
+		if wins >= need :
 			player_rank = title
 			rank_index = index
 			prev = need
 		else :
 			need_next = need
 			break
+
 	rank_img = html.image(img_url % { "rank_index" : rank_index })
 	rank_progress = html.progressBar(100 * (wins - prev) / (need_next - prev))
+
 	return """
 			%s<br><br>
-            <div style="float:left; text-align:left;">%s</div>
-            <div style="float:right; text-align:right; width:80px;">%s</div>
+			<div style="float:left; text-align:left;">%s</div>
+			<div style="float:right; text-align:right; width:80px;">%s</div>
 		""" % (player_rank, rank_img, rank_progress)
 
