@@ -17,8 +17,8 @@ import slib.validators.network
 
 
 ##### Public methods #####
-@widgetlib.provides("source_players_table", "source_status_table")
-@widgetlib.required(css_list=("simple_table.css",))
+@widgetlib.provides("source_players_table", "source_status_table", "source_join_button")
+@widgetlib.required(css_list=("simple_table.css", "inputs.css"))
 def sourceServerStatus(host_name, port) :
 	host_name = validators.network.validHostName(host_name)
 	port = validators.network.validPort(port)
@@ -48,7 +48,11 @@ def sourceServerStatus(host_name, port) :
 			("Secure", ( "Yes" if info_dict["secure"] else "No" )),
 			("Version", info_dict["version"])
 		])
-	return (players_table, status_table)
+
+	# XXX: https://developer.valvesoftware.com/wiki/Steam_browser_protocol
+	join_button = html.buttonLink("JOIN", "steam://connect/%s:%d" % (host_name, port), ("big_button",))
+
+	return (players_table, status_table, join_button)
 
 @widgetlib.provides("source_players_number")
 def sourcePlayersNumber(host_name, port) :

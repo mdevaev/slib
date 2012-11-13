@@ -13,6 +13,13 @@ def maybeLink(url) :
 	else :
 		return url
 
+def buttonLink(title, url, css_list=("button",)) :
+	return ( """
+			<form action="%s">
+				<input class="%s" type="submit" value="%s">
+			</form>
+		""" % (url, css_list[0], title) )
+
 
 ###
 def progressBar(percent, css_list=("progress_internal", "progress_external")) :
