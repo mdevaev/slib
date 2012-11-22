@@ -6,12 +6,11 @@ import os
 import re
 import cgi
 import httplib
-import traceback
-import time
 
 import page
 import widgets
 import widgetlib
+import logger
 import tools.types
 import validators.system
 
@@ -59,11 +58,11 @@ class SlibServer(object) :
 			start_response("200 OK", [("Content-Type", content_type)])
 			return tools.types.chunks(response, 1024)
 		except BadRequest, err :
-			self.logFail(env_dict)
+			self.logException(env_dict)
 			start_response(str(err), [("Content-Type", "text/plain")])
 			return "ERROR: %s" % (err.text())
 		except Exception, err :
-			self.logFail(env_dict)
+			self.logException(env_dict)
 			start_response("500 Internal Error", [("Content-Type", "text/plain")])
 			return "ERROR: %s" % (str(err))
 
@@ -92,14 +91,13 @@ class SlibServer(object) :
 			text = page.replaceWidgets(text, self.__widgets_list, args_dict, self.__css_dir_path, self.__js_dir_path)
 			return (text, "text/html")
 
-	def logFail(self, env_dict) :
+	def logException(self, env_dict) :
 		request = ( "Protocol: %(SERVER_PROTOCOL)s\n"
 			"Method: %(REQUEST_METHOD)s\n"
 			"Path: %(PATH_INFO)s\n"
 			"Query: %(QUERY_STRING)s\n" % (env_dict) )
 		request += "User-Agent: %s" % (env_dict.get("HTTP_USER_AGENT", ""))
-		message = "----- Error: %s -----\n%s\n-----\n%s" % (time.ctime(), request, traceback.format_exc())
-		print >> sys.stderr, message
+		logger.attachException(request)
 
 
 ##### Public methods #####

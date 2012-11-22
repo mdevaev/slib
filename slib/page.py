@@ -5,6 +5,7 @@ import os
 import re
 
 import widgetlib
+import logger
 
 
 ##### Private constants #####
@@ -58,6 +59,7 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 				except Exception, err :
 					message = "{%s :: %s: %s}" % (name, type(err).__name__, str(err))
 					result_dict = dict.fromkeys(widgetlib.widgetProvides(widget), message)
+					logger.attachException("Error while processing widget %s(%s)" % (name, str(args_tuple)))
 				for (key, value) in result_dict.iteritems() :
 					cache_dict[key][args_tuple] = value
 
