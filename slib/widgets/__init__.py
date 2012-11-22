@@ -2,6 +2,7 @@
 
 from . import system
 from . import torrents
+from . import mlocate
 from . import img
 from . import steam
 from . import kf
