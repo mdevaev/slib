@@ -37,11 +37,11 @@ def disksFree(dirs_list) :
 		(full, used) = tools.system.diskFree(path)
 		percent = 100 * used / full
 		rows_list.append([
-				label,
+				{ "nowrap" : None, "body" : label },
 				{ "style" : "width: 70%", "body" : html.progressBar(percent) },
-				tools.fmt.formatSize(used),
-				tools.fmt.formatSize(full),
-				tools.fmt.formatSize(full - used)
+				{ "nowrap" : None, "body" : tools.fmt.formatSize(used) },
+				{ "nowrap" : None, "body" : tools.fmt.formatSize(full) },
+				{ "nowrap" : None, "body" : tools.fmt.formatSize(full - used) },
 			])
 	df_table = html.tableWithHeader(["Label", "", "Size", "Used", "Free"], rows_list)
 	return (df_table,)
