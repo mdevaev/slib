@@ -35,9 +35,9 @@ def mlocateSearch(query, remove_prefix, locate_bin_path, db_file_path) :
 	(proc_stdout, proc_stderr, proc_retcode) = tools.process.execProcess([
 			locate_bin_path,
 			"--database", db_file_path,
-			"--all", "--ignore-case", "--regex",
+			"--all", "--ignore-case",
 			"--null", "--quiet",
-		] + ["\\<%s\\>" % (item) for item in query_list ], fatal_flag=False)
+		] + query_list, fatal_flag=False)
 
 	if proc_retcode != 0 :
 		return ("Nothing found" + search_time(),)
@@ -45,13 +45,13 @@ def mlocateSearch(query, remove_prefix, locate_bin_path, db_file_path) :
 	results_list = []
 	for path in proc_stdout.strip().split("\0") :
 		path_list = path.split(os.path.sep)
+		found_dict = dict.fromkeys(query_list, False)
 		for index in xrange(len(path_list)) :
-			found_flag = False
+			component = tools.coding.fromUtf8(path_list[index]).lower()
 			for word in query_list :
-				if not word in tools.coding.fromUtf8(path_list[index]).lower() :
-					break
-				found_flag = True
-			if found_flag :
+				if word in component :
+					found_dict[word] = True
+			if all(found_dict.values()) :
 				result_path = os.path.sep.join(path_list[:index + 1])
 				if not result_path in results_list :
 					results_list.append(result_path)
