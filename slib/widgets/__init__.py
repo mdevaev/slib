@@ -10,16 +10,16 @@ from . import twitter
 
 try :
 	from . import torrents
-except ImportError :
-	torrents = None
+except ImportError, err :
+	print "ImportError(%s): widgets.torrents.* is disabled" % (str(err))
 
 try :
 	from . import steam
-except ImportError :
-	steam = None
+except ImportError, err :
+	print "ImportError(%s): widgets.steam.* is disabled" % (str(err))
 
 try :
 	from . import kf
-except ImportError :
-	kf = None
+except ImportError, err :
+	print "ImportError(%s): widgets.kf.* is disabled" % (str(err))
 
