@@ -67,7 +67,6 @@ def mlocateSearch(query, remove_prefix, locate_bin_path, db_file_path) :
 		row = "--- <a href=\"%s\">%s</a>" % (row, row)
 		results_list[index] = row
 	results = "<br>".join(results_list)
-	results += search_time()
 
 	return (results, search_time(), query)
 
