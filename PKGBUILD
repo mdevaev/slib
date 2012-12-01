@@ -1,7 +1,7 @@
 # Contributor : Devaev Maxim <mdevaev@gmail.com>
 
 pkgname=python2-slib-git
-pkgver=20121125
+pkgver=20121202
 pkgrel=1
 pkgdesc="Silverna library - a set of macros and fcgi-application to generate HTML pages"
 arch=('any')
