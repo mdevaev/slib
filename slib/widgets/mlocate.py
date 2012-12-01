@@ -16,21 +16,22 @@ import slib.validators.fs
 
 
 ##### Public methods #####
-@widgetlib.provides("mlocate_search")
+@widgetlib.provides("mlocate_search", "mlocate_stats", "mlocate_query")
 def mlocateSearch(query, remove_prefix, locate_bin_path, db_file_path) :
 	query = tools.coding.fromUtf8(query)
 	query = re.sub(r"[^\w ]", "", query, flags=re.UNICODE).lower()
-	query_list = query.lower().split()
+	query_list = query.split()
+	query = tools.coding.utf8(query)
 
 	remove_prefix = os.path.normpath(remove_prefix) # XXX: Not validate!
 	locate_bin_path = validators.fs.validAccessiblePath(locate_bin_path)
 	db_file_path = validators.fs.validAccessiblePath(db_file_path)
 
 	if len(query_list) == 0 :
-		return ("Empty query string",)
+		return ("Empty query string", "", query)
 
 	before_run = time.time()
-	search_time = ( lambda : "<br><br>Search time: %.2f sec" % (time.time() - before_run) )
+	search_time = ( lambda : "Search time: %.2f seconds" % (time.time() - before_run) )
 
 	(proc_stdout, proc_stderr, proc_retcode) = tools.process.execProcess([
 			locate_bin_path,
@@ -40,7 +41,7 @@ def mlocateSearch(query, remove_prefix, locate_bin_path, db_file_path) :
 		] + query_list, fatal_flag=False)
 
 	if proc_retcode != 0 :
-		return ("Nothing found" + search_time(),)
+		return ("Nothing found", search_time(), query)
 
 	results_list = []
 	for path in proc_stdout.strip().split("\0") :
@@ -58,7 +59,7 @@ def mlocateSearch(query, remove_prefix, locate_bin_path, db_file_path) :
 				break
 
 	if len(results_list) == 0 :
-		return ("Nothing found" + search_time(),)
+		return ("Nothing found", search_time(), query)
 
 	for index in xrange(len(results_list)) :
 		row = results_list[index]
@@ -67,5 +68,6 @@ def mlocateSearch(query, remove_prefix, locate_bin_path, db_file_path) :
 		results_list[index] = row
 	results = "<br>".join(results_list)
 	results += search_time()
-	return (results,)
+
+	return (results, search_time(), query)
 
