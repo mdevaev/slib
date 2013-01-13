@@ -53,15 +53,15 @@ def simpleTable(rows_list, css_list=("simple",)) :
 		trs += "<tr>%s</tr>" % ("".join(items_list))
 	return "<table class=\"%s\">%s</table>" % (css_list[0], trs)
 
-def tableWithHeader(header_list, rows_list) :
-	header_list = map(lambda arg : "<b>%s</b>" % (arg), header_list)
-	return simpleTable([header_list] + ( rows_list or [[""] * len(header_list)]))
+def tableWithHeader(header_list, rows_list, css_list=("bold", "simple")) :
+	header_list = map(lambda arg : { "class" : css_list[0], "body" : arg }, header_list)
+	return simpleTable([header_list] + ( rows_list or [[""] * len(header_list)]), css_list[1:])
 
-def statusTable(table_list) :
+def statusTable(table_list, css_list=("bold", "simple")) :
 	rows_list = []
 	for (label, data) in table_list :
-		rows_list.append(["<b>%s</b>" % (label), data])
-	return simpleTable(rows_list)
+		rows_list.append([{ "class" : css_list[0], "body" : label }, data])
+	return simpleTable(rows_list, css_list[1:])
 
 
 ###
