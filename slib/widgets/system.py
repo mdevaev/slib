@@ -39,8 +39,8 @@ def disksFree(dirs_list) :
 		rows_list.append([
 				{ "nowrap" : None, "body" : label },
 				{ "style" : "width: 70%", "body" : html.progressBar(percent) },
-				{ "nowrap" : None, "body" : tools.fmt.formatSize(used) },
 				{ "nowrap" : None, "body" : tools.fmt.formatSize(full) },
+				{ "nowrap" : None, "body" : tools.fmt.formatSize(used) },
 				{ "nowrap" : None, "body" : tools.fmt.formatSize(full - used) },
 			])
 	df_table = html.tableWithHeader(["Label", "", "Size", "Used", "Free"], rows_list)
