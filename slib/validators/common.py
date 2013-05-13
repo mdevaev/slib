@@ -4,70 +4,69 @@
 import re
 import cjson
 
-from . import ValidatorError
+from slib import tools
+import slib.tools.coding # pylint: disable=W0611
+
+from slib import validatorlib
+from slib.validatorlib import ValidatorError
 
 
 ##### Public methods #####
 def validBool(arg) :
-	arg = str(arg).strip().lower()
 	true_args_list = ("1", "true", "yes")
 	false_args_list = ("0", "false", "no")
-
-	if not arg in true_args_list + false_args_list :
-		raise ValidatorError("Argument \"%s\" not in list %s or %s" % (arg, true_args_list, false_args_list))
-
+	name = "bool (%s or %s)" % (str(true_args_list), str(false_args_list))
+	arg = validatorlib.notEmptyStrip(arg, name).lower()
+	arg = validatorlib.checkRange(arg, true_args_list + false_args_list, name)
 	return ( arg in true_args_list )
 
 def validNumber(arg, min_value = None, max_value = None, value_type = int) :
-	if arg is None :
-		raise ValidatorError("Empty argument is not valid a number")
-
-	arg = str(arg).strip()
-
+	arg = validatorlib.notEmptyStrip(arg, "number")
 	try :
 		arg = value_type(arg)
 	except Exception :
-		raise ValidatorError("Argument \"%s\" is not valid a number" % (arg))
+		validatorlib.raiseError(arg, "number")
 
-	if min_value != None and arg < min_value :
-		raise ValidatorError("Argument \"%s\" must be greater or equal than %d" % (arg, min_value))
-	if max_value != None and arg > max_value :
-		raise ValidatorError("Argument \"%s\" must be lesser or equal then %d" % (arg, max_value))
+	if not min_value is None and arg < min_value :
+		raise ValidatorError("The argument \"%s\" must be greater or equal than %d" % (tools.coding.utf8(arg), min_value))
+	if not max_value is None and arg > max_value :
+		raise ValidatorError("The argument \"%s\" must be lesser or equal then %d" % (tools.coding.utf8(arg), max_value))
 	return arg
 
+
+###
 def validRange(arg, valid_args_list) :
-	if not arg in valid_args_list :
-		raise ValidatorError("Argument \"%s\" not in range %s" % (str(arg), str(valid_args_list)))
-	return arg
+	return validatorlib.checkRange(arg, valid_args_list, "range %s" % (str(valid_args_list)))
 
 def validStringList(arg) :
-	if arg is None :
-		raise ValidatorError("Empty argument is not valid a string list")
-	if type(arg) in (list, tuple) :
+	if isinstance(arg, (list, tuple)) :
 		return map(str, list(arg))
-	return filter(lambda arg : len(arg) != 0, re.split(r"[,\t ]+", str(arg).strip()))
+	arg = validatorlib.notEmptyStrip(arg, "string list")
+	return filter(None, re.split(r"[,\t ]+", arg))
 
+
+###
 def validEmpty(arg) :
-	if arg is None or (type(arg) in (str, unicode) and len(arg.strip()) == 0 ) :
+	if arg is None or (isinstance(arg, (str, unicode)) and len(arg.strip()) == 0) :
 		return None
 	else :
 		return arg
 
-def validJson(arg) :
-	if arg is None :
-		raise ValidatorError("Empty argument is not valid a JSON structure")
+def validMaybeEmpty(arg, validator) :
+	arg = validEmpty(arg)
+	if not arg is None :
+		return validator(arg)
+	else :
+		return None
 
-	arg = str(arg).strip()
+###
+def validJson(arg) :
+	arg = validatorlib.notEmptyStrip(arg, "JSON structure")
 	try :
 		return cjson.encode(cjson.decode(arg))
 	except Exception, err :
-		raise ValidatorError("Argument \"%s\" is not valid a JSON structure: %s" % (arg, str(err)))
+		raise ValidatorError("The argument \"%s\" is not a valid JSON structure: %s" % (tools.coding.utf8(arg), str(err)))
 
 def validHexString(arg) :
-	if arg is None :
-		raise ValidatorError("Empty argument is not valid a hex string")
-	arg = str(arg).strip()
-	if re.match(r"^[0-9a-fA-F]+$", arg) == None :
-		raise ValidatorError("Argument \"%s\" is not valid a hex string" % (arg))
-	return arg
+	return validatorlib.checkRegexp(arg, r"^[0-9a-fA-F]+$", "hex string")
 
