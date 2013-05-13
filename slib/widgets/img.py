@@ -20,7 +20,7 @@ def randomImage(width, dir_path) :
 	width = validators.common.validNumber(width, 0)
 	dir_path = validators.fs.validAccessiblePath(dir_path)
 	div_id = tools.types.uniqueId("random_image %d %s" % (width, dir_path))
-	images_list = [ os.path.join(dir_path, item) for item in os.listdir(dir_path) ]
+	images_list = [ os.path.join(dir_path, item) for item in os.listdir(dir_path) if not item.startswith(".") ]
 	text = ( """
 			<div align="center" id="%(div_id)s">
 				<script type="text/javascript">randomImage('%(div_id)s', %(width)d, %(images)s)</script>
