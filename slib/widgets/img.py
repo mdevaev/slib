@@ -6,7 +6,7 @@ import os
 from slib import widgetlib
 
 from slib import tools
-import slib.tools.types
+import slib.tools.types # pylint: disable=W0611
 
 from slib import validators
 import slib.validators.common

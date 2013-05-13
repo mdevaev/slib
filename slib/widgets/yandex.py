@@ -4,7 +4,7 @@
 from slib import widgetlib
 
 from slib import validators
-import slib.validators.common
+import slib.validators.common # pylint: disable=W0611
 
 
 ##### Public constants #####

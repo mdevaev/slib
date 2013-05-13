@@ -9,7 +9,7 @@ from slib import widgetlib
 from slib import html
 
 from slib import tools
-import slib.tools.fmt
+import slib.tools.fmt # pylint: disable=W0611
 
 from slib import validators
 import slib.validators.fs
@@ -24,7 +24,6 @@ def torrentsList(torrents_dir_path, link_prefix) :
 	size = 0
 	rows_list = []
 	for (torrent_file_name, meta_dict) in sorted(torrents(torrents_dir_path).items(), key=operator.itemgetter(0)) :
-		torrent_file_path = os.path.join(link_prefix, torrent_file_name)
 		torrent_size = torrentSize(meta_dict)
 		size += torrent_size
 		rows_list.append([

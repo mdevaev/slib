@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
-import sys
 import types
 import decorator
-import traceback
 
 
 ##### Public methods #####

@@ -9,7 +9,7 @@ from slib import widgetlib
 from slib import html
 
 from slib import tools
-import slib.tools.fmt
+import slib.tools.fmt # pylint: disable=W0611
 
 from slib import validators
 import slib.validators.common
@@ -20,7 +20,7 @@ import slib.validators.network
 @widgetlib.provides("source_players_table", "source_status_table", "source_join_button")
 @widgetlib.required(css_list=("simple_table.css", "inputs.css"))
 def sourceServerStatus(host_name, port) :
-	host_name = validators.network.validHostName(host_name)
+	host_name = validators.network.validRfcHost(host_name)
 	port = validators.network.validPort(port)
 
 	server = SourceLib.SourceQuery.SourceQuery(host_name, port)
@@ -56,7 +56,7 @@ def sourceServerStatus(host_name, port) :
 
 @widgetlib.provides("source_players_number")
 def sourcePlayersNumber(host_name, port) :
-	host_name = validators.network.validHostName(host_name)
+	host_name = validators.network.validRfcHost(host_name)
 	port = validators.network.validPort(port)
 	server = SourceLib.SourceQuery.SourceQuery(host_name, port)
 	info_dict = server.info()

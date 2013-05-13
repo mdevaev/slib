@@ -3,14 +3,13 @@
 
 import os
 import re
-import operator
 import time
 
 from slib import widgetlib
 from slib import html
 
 from slib import tools
-import slib.tools.coding
+import slib.tools.coding # pylint: disable=W0611
 import slib.tools.process
 
 from slib import validators
@@ -40,7 +39,7 @@ def mlocateSearch(query, remove_prefix, locate_bin_path, db_file_path) :
 	before_run = time.time()
 	search_time = ( lambda : "Search time: %.2f seconds" % (time.time() - before_run) )
 
-	(proc_stdout, proc_stderr, proc_retcode) = tools.process.execProcess([
+	(proc_stdout, _, proc_retcode) = tools.process.execProcess([
 			locate_bin_path,
 			"--database", db_file_path,
 			"--all", "--ignore-case",

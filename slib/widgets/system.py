@@ -8,7 +8,7 @@ from slib import widgetlib
 from slib import html
 
 from slib import tools
-import slib.tools.system
+import slib.tools.system # pylint: disable=W0611
 import slib.tools.fmt
 
 from slib import validators

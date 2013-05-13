@@ -7,7 +7,7 @@ from slib import widgetlib
 from slib import html
 
 from slib import tools
-import slib.tools.fmt
+import slib.tools.fmt # pylint: disable=W0611
 
 from slib import validators
 import slib.validators.fs
@@ -154,7 +154,7 @@ def calculateLevelProgress(levels_map, stat_dict) :
 def serverLeaderboardTable(stat_dict, limit = 5) :
 	count = 1
 	leaderboard_list = []
-	for (user_id, player_stat_dict) in sorted(stat_dict.items(), key=( lambda arg : -arg[1]["KillsStat"] )) :
+	for player_stat_dict in sorted(stat_dict.values(), key=( lambda arg : -arg["KillsStat"] )) :
 		leaderboard_list.append([
 				str(count),
 				{ "nowrap" : None, "body" : player_stat_dict["PlayerName"] },
@@ -240,7 +240,7 @@ def playerRatingTable(stat_dict, user_id) :
 	assert index != -1
 	players_list = []
 	wrap_special = ( lambda text, count : "<font class=\"special\">%s</font>" % (str(text)) if count == index else str(text) )
-	for (count, stat_user_id, player_stat_dict) in sorted_list[max(index-2, 0):index+3] :
+	for (count, _, player_stat_dict) in sorted_list[max(index-2, 0):index+3] :
 		players_list.append([
 				wrap_special(count + 1, count),
 				{ "nowrap" : None, "body" : wrap_special(player_stat_dict["PlayerName"], count) },
