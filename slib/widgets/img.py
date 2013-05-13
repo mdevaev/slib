@@ -28,3 +28,15 @@ def randomImage(width, dir_path) :
 		""" % { "div_id" : div_id, "width" : width, "images" : repr(images_list) } )
 	return (text,)
 
+
+@widgetlib.provides("images_list")
+@widgetlib.required(css_list=("gallery.css",))
+def imagesList(dir_path) :
+	images_list = [ os.path.join(dir_path, item) for item in sorted(os.listdir(dir_path)) if not item.startswith(".") ]
+	text = ""
+	for image_path in images_list :
+		text += ( """
+				<img class="preview" src="%s">
+			""" % (image_path))
+	return (text,)
+
