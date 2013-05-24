@@ -26,18 +26,18 @@ DELIMITERS = r"[\s\-\.,]"
 def mlocateSearch(query, remove_prefix, locate_bin_path, db_file_path) :
 	query = tools.coding.fromUtf8(query)
 	query = re.sub(VALID_SYMBOLS, "", query, flags=re.UNICODE).lower()
-	query_list = re.split(DELIMITERS, query)
+	query_list = filter(None, re.split(DELIMITERS, query))
 	query = tools.coding.utf8(query)
 
 	remove_prefix = os.path.normpath(remove_prefix) # XXX: Not validate!
 	locate_bin_path = validators.fs.validAccessiblePath(locate_bin_path)
 	db_file_path = validators.fs.validAccessiblePath(db_file_path)
 
-	if len(query_list) == 0 :
-		return ("Empty query string", "", query)
-
 	before_run = time.time()
 	search_time = ( lambda : "Search time: %.2f seconds" % (time.time() - before_run) )
+
+	if len(query_list) == 0 :
+		return ("Empty query string", search_time(), query)
 
 	(proc_stdout, _, proc_retcode) = tools.process.execProcess([
 			locate_bin_path,
