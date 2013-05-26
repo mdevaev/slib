@@ -65,16 +65,17 @@ def kfStatistics(config_file_path, profile_url) :
 	stat_dict = serverPerksStat(config_file_path)
 
 	return (
-		serverLeaderboardTable(stat_dict),
+		serverLeaderboardTable(stat_dict, profile_url),
 		serverPerksTable(stat_dict, profile_url),
 	)
 
 
 @widgetlib.provides("kf_player_stat_table", "kf_player_perks_table", "kf_player_rating_table")
 @widgetlib.required(css_list=("simple_table.css", "progress_bar.css", "font.css"))
-def kfPlayerStatistics(user_id, config_file_path) :
+def kfPlayerStatistics(user_id, config_file_path, profile_url) :
 	user_id = validators.common.validNumber(user_id, 1)
 	config_file_path = validators.fs.validAccessiblePath(config_file_path)
+	# FIXME: No validation for profile url!
 
 	stat_dict = serverPerksStat(config_file_path)
 	if not user_id in stat_dict :
@@ -83,7 +84,7 @@ def kfPlayerStatistics(user_id, config_file_path) :
 	return (
 		playerStatisticsTable(stat_dict, user_id),
 		playerPerksTable(stat_dict, user_id),
-		playerRatingTable(stat_dict, user_id),
+		playerRatingTable(stat_dict, user_id, profile_url),
 	)
 
 @widgetlib.provides("kf_player_rank")
@@ -151,13 +152,14 @@ def calculateLevelProgress(levels_map, stat_dict) :
 
 
 #####
-def serverLeaderboardTable(stat_dict, limit = 5) :
+def serverLeaderboardTable(stat_dict, profile_url, limit = 5) :
 	count = 1
 	leaderboard_list = []
-	for player_stat_dict in sorted(stat_dict.values(), key=( lambda arg : -arg["KillsStat"] )) :
+	for (user_id, player_stat_dict) in sorted(stat_dict.items(), key=( lambda arg : -arg[1]["KillsStat"] )) :
+		player_name = "<a href=\"%s\">&raquo;</a>&nbsp;%s" % (profile_url % { "user_id" : user_id }, player_stat_dict["PlayerName"])
 		leaderboard_list.append([
 				str(count),
-				{ "nowrap" : None, "body" : player_stat_dict["PlayerName"] },
+				{ "nowrap" : None, "body" : player_name },
 				str(player_stat_dict["KillsStat"]),
 				tools.fmt.formatTimeDelta(player_stat_dict["TotalPlayTime"])
 			])
@@ -235,15 +237,16 @@ def playerPerksTable(stat_dict, user_id) :
 			])
 	return html.tableWithHeader(["Perk", "Level", "Until the next", "Until the max"], perks_list)
 
-def playerRatingTable(stat_dict, user_id) :
+def playerRatingTable(stat_dict, user_id, profile_url) :
 	(sorted_list, index) = sortedPlayers(stat_dict, ( lambda arg : -arg[1]["KillsStat"] ), user_id)
 	assert index != -1
 	players_list = []
 	wrap_special = ( lambda text, count : "<font class=\"special\">%s</font>" % (str(text)) if count == index else str(text) )
-	for (count, _, player_stat_dict) in sorted_list[max(index-2, 0):index+3] :
+	for (count, user_id, player_stat_dict) in sorted_list[max(index-2, 0):index+3] :
+		player_name = "<a href=\"%s\">&raquo;</a>&nbsp;%s" % (profile_url % { "user_id" : user_id }, player_stat_dict["PlayerName"])
 		players_list.append([
 				wrap_special(count + 1, count),
-				{ "nowrap" : None, "body" : wrap_special(player_stat_dict["PlayerName"], count) },
+				{ "nowrap" : None, "body" : wrap_special(player_name, count) },
 				wrap_special(player_stat_dict["KillsStat"], count),
 			])
 		count += 1
