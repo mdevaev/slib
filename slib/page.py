@@ -3,11 +3,11 @@
 
 import os
 import re
+import helib.validators.common
 
 import widgetlib
 import logger
 
-import validators.common
 import validators.system
 
 
@@ -106,6 +106,6 @@ def updateDefineArgs(define_args_dict, args_tuple) :
 	args_list = filter(None, map(str.strip, args_tuple))
 	if len(args_list) == 0 :
 		return
-	keys_list = validators.common.validStringList(args_list[0])
+	keys_list = helib.validators.common.validStringList(args_list[0])
 	define_args_dict.update(dict.fromkeys(keys_list, tuple(args_list[1:])))
 

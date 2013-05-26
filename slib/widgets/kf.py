@@ -2,15 +2,12 @@
 
 
 import ConfigParser
+import helib.tools.fmt
+import helib.validators.common
+import helib.validators.fs
 
 from slib import widgetlib
 from slib import html
-
-from slib import tools
-import slib.tools.fmt # pylint: disable=W0611
-
-from slib import validators
-import slib.validators.fs
 
 
 ##### Public constants #####
@@ -59,7 +56,7 @@ RANKS_LIST = (
 @widgetlib.provides("kf_leaderboard_table", "kf_perks_table")
 @widgetlib.required(css_list=("simple_table.css", "progress_bar.css"))
 def kfStatistics(config_file_path, profile_url) :
-	config_file_path = validators.fs.validAccessiblePath(config_file_path)
+	config_file_path = helib.validators.fs.validAccessiblePath(config_file_path)
 	# FIXME: No validation for profile url!
 
 	stat_dict = serverPerksStat(config_file_path)
@@ -73,8 +70,8 @@ def kfStatistics(config_file_path, profile_url) :
 @widgetlib.provides("kf_player_stat_table", "kf_player_perks_table", "kf_player_rating_table")
 @widgetlib.required(css_list=("simple_table.css", "progress_bar.css", "font.css"))
 def kfPlayerStatistics(user_id, config_file_path, profile_url) :
-	user_id = validators.common.validNumber(user_id, 1)
-	config_file_path = validators.fs.validAccessiblePath(config_file_path)
+	user_id = helib.validators.common.validNumber(user_id, 1)
+	config_file_path = helib.validators.fs.validAccessiblePath(config_file_path)
 	# FIXME: No validation for profile url!
 
 	stat_dict = serverPerksStat(config_file_path)
@@ -89,8 +86,8 @@ def kfPlayerStatistics(user_id, config_file_path, profile_url) :
 
 @widgetlib.provides("kf_player_rank")
 def kfPlayerAchievement(user_id, config_file_path, rank_img_url) :
-	user_id = validators.common.validNumber(user_id, 1)
-	config_file_path = validators.fs.validAccessiblePath(config_file_path)
+	user_id = helib.validators.common.validNumber(user_id, 1)
+	config_file_path = helib.validators.fs.validAccessiblePath(config_file_path)
 	# FIXME: No validation for rank img url!
 
 	stat_dict = serverPerksStat(config_file_path)
@@ -161,7 +158,7 @@ def serverLeaderboardTable(stat_dict, profile_url, limit = 5) :
 				str(count),
 				{ "nowrap" : None, "body" : player_name },
 				str(player_stat_dict["KillsStat"]),
-				tools.fmt.formatTimeDelta(player_stat_dict["TotalPlayTime"])
+				helib.tools.fmt.formatTimeDelta(player_stat_dict["TotalPlayTime"])
 			])
 		if count == limit :
 			break
@@ -214,7 +211,7 @@ def playerStatisticsTable(stat_dict, user_id) :
 			("Efficiency", "%2.f" % (efficiency)),
 			("Last hope", str(player_stat_dict["SoleSurvivorWavesStat"])),
 			("Kills", str(kills)),
-			("Time played", tools.fmt.formatTimeDelta(player_stat_dict["TotalPlayTime"])),
+			("Time played", helib.tools.fmt.formatTimeDelta(player_stat_dict["TotalPlayTime"])),
 		])
 
 def playerPerksTable(stat_dict, user_id) :

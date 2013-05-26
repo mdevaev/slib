@@ -4,16 +4,14 @@
 import os
 import re
 import time
+import helib.tools.coding
+import helib.validators.fs
 
 from slib import widgetlib
 from slib import html
 
 from slib import tools
-import slib.tools.coding # pylint: disable=W0611
-import slib.tools.process
-
-from slib import validators
-import slib.validators.fs
+import slib.tools.process # pylint: disable=W0611
 
 
 #####
@@ -24,14 +22,14 @@ DELIMITERS = r"[\s\-\.,]"
 ##### Public methods #####
 @widgetlib.provides("mlocate_search", "mlocate_stats", "mlocate_query")
 def mlocateSearch(query, remove_prefix, locate_bin_path, db_file_path) :
-	query = tools.coding.fromUtf8(query)
+	query = helib.tools.coding.fromUtf8(query)
 	query = re.sub(VALID_SYMBOLS, "", query, flags=re.UNICODE).lower()
 	query_list = filter(None, re.split(DELIMITERS, query))
-	query = tools.coding.utf8(query)
+	query = helib.tools.coding.utf8(query)
 
 	remove_prefix = os.path.normpath(remove_prefix) # XXX: Not validate!
-	locate_bin_path = validators.fs.validAccessiblePath(locate_bin_path)
-	db_file_path = validators.fs.validAccessiblePath(db_file_path)
+	locate_bin_path = helib.validators.fs.validAccessiblePath(locate_bin_path)
+	db_file_path = helib.validators.fs.validAccessiblePath(db_file_path)
 
 	before_run = time.time()
 	search_time = ( lambda : "Search time: %.2f seconds" % (time.time() - before_run) )
@@ -72,7 +70,7 @@ def mapResults(query_list, rows_list) :
 		found_dict = dict.fromkeys(query_list, False)
 
 		for index in xrange(len(path_list)) :
-			component = tools.coding.fromUtf8(path_list[index]).lower()
+			component = helib.tools.coding.fromUtf8(path_list[index]).lower()
 			for word in query_list :
 				if word in component :
 					found_dict[word] = True
@@ -86,7 +84,7 @@ def mapResults(query_list, rows_list) :
 	return sorted(results_dict.items(), key=( lambda arg : -arg[1] ))
 
 def calculateWeight(query_list, file_name) :
-	file_name = tools.coding.fromUtf8(file_name).lower()
+	file_name = helib.tools.coding.fromUtf8(file_name).lower()
 	without_spaces = re.sub(r"\s", "", file_name)
 	weight = 0
 	for query in query_list :

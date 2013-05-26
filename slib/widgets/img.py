@@ -2,24 +2,20 @@
 
 
 import os
+import helib.validators.common
+import helib.validators.fs
 
 from slib import widgetlib
-
-from slib import tools
-import slib.tools.types # pylint: disable=W0611
-
-from slib import validators
-import slib.validators.common
-import slib.validators.fs
+from slib import html
 
 
 ##### Public methods #####
 @widgetlib.provides("random_image")
 @widgetlib.required(js_list=("random_image.js",))
 def randomImage(width, dir_path) :
-	width = validators.common.validNumber(width, 0)
-	dir_path = validators.fs.validAccessiblePath(dir_path)
-	div_id = tools.types.uniqueId("random_image %d %s" % (width, dir_path))
+	width = helib.validators.common.validNumber(width, 0)
+	dir_path = helib.validators.fs.validAccessiblePath(dir_path)
+	div_id = html.uniqueId("random_image %d %s" % (width, dir_path))
 	images_list = [ os.path.join(dir_path, item) for item in os.listdir(dir_path) if not item.startswith(".") ]
 	text = ( """
 			<div align="center" id="%(div_id)s">

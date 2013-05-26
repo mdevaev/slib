@@ -2,8 +2,9 @@
 
 
 import re
-
-import tools.types
+import time
+import threading
+import hashlib
 
 
 ##### Public methods #####
@@ -34,7 +35,7 @@ def progressBar(percent, css_list=("progress_internal", "progress_external")) :
 
 ###
 def spoilerTitle(title, css_list=("script",)) :
-	div_id = tools.types.uniqueId(title)
+	div_id = uniqueId(title)
 	return (div_id, "<a class=\"%s\" href=\"javascript:toggleSpoiler('%s')\">%s</a>" % (css_list[0], div_id, title))
 
 def spoilerBody(div_id, text) :
@@ -67,6 +68,11 @@ def statusTable(table_list, css_list=("bold", "simple")) :
 ###
 def image(url, alt = None) :
 	return "<img alt=\"%s\" src=\"%s\">" % ((alt or url), url)
+
+
+###
+def uniqueId(salt = "") :
+	return hashlib.sha1("%f %d %s" % (time.time(), id(threading.current_thread()), salt)).hexdigest()
 
 
 ##### Private methods #####
