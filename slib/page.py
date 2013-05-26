@@ -7,6 +7,9 @@ import re
 import widgetlib
 import logger
 
+import validators.common
+import validators.system
+
 
 ##### Private constants #####
 JS_PATTERN = "<script type=\"text/javascript\" src=\"%s\"></script>"
@@ -23,6 +26,8 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 	css_list = []
 	js_list = []
 
+	define_args_dict = {}
+
 	for match in re.finditer(r"{([a-zA-Z_]+[^}\n]+)}", text) :
 		macros_tuple = tuple(match.group(1).split())
 		name = macros_tuple[0]
@@ -37,6 +42,8 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 				css_dir_path = resourceDir(args_tuple, css_dir_path)
 			elif name == "__set_js_dir__" :
 				js_dir_path = resourceDir(args_tuple, js_dir_path)
+			elif name == "__define_args__" :
+				updateDefineArgs(define_args_dict, args_tuple)
 			else :
 				continue
 			text = text.replace("{%s}" % (match.group(1)), "")
@@ -45,12 +52,13 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 			if widget is None :
 				continue
 
+			args_tuple = define_args_dict.get(name, args_tuple)
 			if cache_dict[name].get(args_tuple, None) is None :
 				try :
 					args_list = list(args_tuple)
 					for (index, item) in enumerate(args_list) :
 						if item.startswith("$") :
-							variable = item[1:]
+							variable = validators.system.validVariableName(item[1:])
 							if variable in args_dict :
 								args_list[index] = args_dict[variable]
 							else :
@@ -93,4 +101,11 @@ def resourceDir(args_tuple, old_path) :
 	if len(new_path) == 0 :
 		return old_path
 	return new_path
+
+def updateDefineArgs(define_args_dict, args_tuple) :
+	args_list = filter(None, map(str.strip, args_tuple))
+	if len(args_list) == 0 :
+		return
+	keys_list = validators.common.validStringList(args_list[0])
+	define_args_dict.update(dict.fromkeys(keys_list, tuple(args_list[1:])))
 
