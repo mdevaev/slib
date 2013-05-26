@@ -30,9 +30,13 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 
 		if name.startswith("__") :
 			if name == "__include_css__" :
-				css_list += list(args_tuple)
+				css_list += includeResources(args_tuple)
 			elif name == "__include_js__" :
-				js_list += list(args_tuple)
+				js_list += includeResources(args_tuple)
+			elif name == "__set_css_dir__" :
+				css_dir_path = resourceDir(args_tuple, css_dir_path)
+			elif name == "__set_js_dir__" :
+				js_dir_path = resourceDir(args_tuple, js_dir_path)
 			else :
 				continue
 			text = text.replace("{%s}" % (match.group(1)), "")
@@ -78,4 +82,15 @@ def makeResourceLink(url, dir_path, pattern) :
 	if re.match(r"^[a-zA-Z0-9_\-]+://.*", url) is None :
 		url = os.path.join(dir_path, url)
 	return pattern % (url)
+
+def includeResources(args_tuple) :
+	return filter(None, map(str.strip, args_tuple))
+
+def resourceDir(args_tuple, old_path) :
+	if len(args_tuple) == 0 :
+		return old_path
+	new_path = args_tuple[0].strip()
+	if len(new_path) == 0 :
+		return old_path
+	return new_path
 
