@@ -195,8 +195,11 @@ def playerStatisticsTable(stat_dict, user_id) :
 	losts = player_stat_dict["LostsCount"]
 	battles = wins + losts
 	kills = player_stat_dict["KillsStat"]
-	efficiency = float(kills) / float(battles)
-	skill_factor = float(wins) / float(battles)
+	if battles != 0 :
+		efficiency = float(kills) / float(battles)
+		skill_factor = float(wins) / float(battles)
+	else :
+		efficiency = skill_factor = 0
 
 	skill_factor_text = ( """
 			<div style="float:left; text-align:left;">%.2f&nbsp;</div>
