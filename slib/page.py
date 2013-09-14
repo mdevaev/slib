@@ -3,6 +3,7 @@
 
 import os
 import re
+import helib.tools.coding
 import helib.validators.common
 
 import widgetlib
@@ -73,7 +74,7 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 					result_dict = dict.fromkeys(widgetlib.widgetProvides(widget), message)
 					logger.attachException("Error while processing widget %s(%s)" % (name, str(args_tuple)))
 				for (key, value) in result_dict.iteritems() :
-					cache_dict[key][args_tuple] = value
+					cache_dict[key][args_tuple] = helib.tools.coding.utf8(value)
 
 			text = text.replace("{%s}" % (match.group(1)), cache_dict[name][args_tuple])
 
