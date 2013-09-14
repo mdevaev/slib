@@ -27,7 +27,7 @@ def torrentsList(torrents_dir_path, link_prefix) :
 				str(len(rows_list) + 1),
 				"<a href=\"%s\">%s</a>" % (os.path.join(link_prefix, torrent_file_name), torrent_file_name),
 				helib.tools.fmt.formatSize(torrent_size),
-				html.maybeLink(torrent.comment()),
+				html.maybeLink(torrent.comment() or ""),
 			])
 	torrents_table = html.tableWithHeader(["N", "Name", "Size", "Comment"], rows_list)
 
