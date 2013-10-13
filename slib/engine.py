@@ -5,7 +5,7 @@ import sys
 import os
 import cgi
 import httplib
-import helib.tools.types
+import ulib.tools.types
 
 import page
 import widgets
@@ -13,7 +13,7 @@ import widgetlib
 import logger
 import validators.system
 
-from helib.validatorlib import ValidatorError
+from ulib.validatorlib import ValidatorError
 
 
 ##### Public constants #####
@@ -55,7 +55,7 @@ class SlibServer(object) :
 		try :
 			(response, content_type) = self.processRequest(env_dict)
 			start_response("200 OK", [("Content-Type", content_type)])
-			return helib.tools.types.chunks(response, 1024)
+			return ulib.tools.types.chunks(response, 1024)
 		except BadRequest, err :
 			self.logException(env_dict)
 			start_response(str(err), [("Content-Type", "text/plain")])

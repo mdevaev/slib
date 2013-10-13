@@ -3,8 +3,8 @@
 
 import os
 import re
-import helib.tools.coding
-import helib.validators.common
+import ulib.tools.coding
+import ulib.validators.common
 
 import widgetlib
 import logger
@@ -78,7 +78,7 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 					result_dict = dict.fromkeys(widgetlib.widgetProvides(widget), message)
 					logger.attachException("Error while processing widget %s(%s)" % (name, str(args_tuple)))
 				for (key, value) in result_dict.iteritems() :
-					cache_dict[key][args_tuple] = helib.tools.coding.utf8(value)
+					cache_dict[key][args_tuple] = ulib.tools.coding.utf8(value)
 
 			text = text.replace("{%s}" % (match.group(1)), cache_dict[name][args_tuple])
 
@@ -112,7 +112,7 @@ def updateDefineArgs(define_args_dict, args_tuple) :
 	args_list = filter(None, map(str.strip, args_tuple))
 	if len(args_list) == 0 :
 		return
-	keys_list = helib.validators.common.validStringList(args_list[0])
+	keys_list = ulib.validators.common.validStringList(args_list[0])
 	define_args_dict.update(dict.fromkeys(keys_list, tuple(args_list[1:])))
 
 def contentType(args_tuple, old_content_type) :

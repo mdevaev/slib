@@ -4,9 +4,9 @@
 import urllib2
 import cjson
 import SourceLib
-import helib.tools.fmt
-import helib.validators.common
-import helib.validators.network
+import ulib.tools.fmt
+import ulib.validators.common
+import ulib.validators.network
 
 from slib import widgetlib
 from slib import html
@@ -16,8 +16,8 @@ from slib import html
 @widgetlib.provides("source_players_table", "source_status_table", "source_join_button")
 @widgetlib.required(css_list=("simple_table.css", "inputs.css"))
 def sourceServerStatus(host_name, port) :
-	host_name = helib.validators.network.validRfcHost(host_name)
-	port = helib.validators.network.validPort(port)
+	host_name = ulib.validators.network.validRfcHost(host_name)
+	port = ulib.validators.network.validPort(port)
 
 	server = SourceLib.SourceQuery.SourceQuery(host_name, port)
 
@@ -27,7 +27,7 @@ def sourceServerStatus(host_name, port) :
 		players_list.append([
 				str(count),
 				{ "nowrap" : None, "body" : player_dict["name"] },
-				helib.tools.fmt.formatTimeDelta(player_dict["time"]),
+				ulib.tools.fmt.formatTimeDelta(player_dict["time"]),
 				str(player_dict["kills"])
 			])
 		count += 1
@@ -52,8 +52,8 @@ def sourceServerStatus(host_name, port) :
 
 @widgetlib.provides("source_players_number")
 def sourcePlayersNumber(host_name, port) :
-	host_name = helib.validators.network.validRfcHost(host_name)
-	port = helib.validators.network.validPort(port)
+	host_name = ulib.validators.network.validRfcHost(host_name)
+	port = ulib.validators.network.validPort(port)
 	server = SourceLib.SourceQuery.SourceQuery(host_name, port)
 	info_dict = server.info()
 	return ("%d / %d" % (info_dict["numplayers"], info_dict["maxplayers"]),)
@@ -62,8 +62,8 @@ def sourcePlayersNumber(host_name, port) :
 ###
 @widgetlib.provides("steam_player_avatar", "steam_player_name", "steam_player_profile")
 def communityUserRequest(user_id, api_key) :
-	user_id = helib.validators.common.validNumber(user_id, 1)
-	api_key = helib.validators.common.validHexString(api_key)
+	user_id = ulib.validators.common.validNumber(user_id, 1)
+	api_key = ulib.validators.common.validHexString(api_key)
 
 	url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%d" % (api_key, user_id)
 	request = urllib2.Request(url=url)

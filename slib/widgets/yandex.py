@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-import helib.validators.common
+import ulib.validators.common
 
 from slib import widgetlib
 
@@ -26,7 +26,7 @@ YA_SHARE_SERVICES_LIST = (
 ##### Public methods #####
 @widgetlib.provides("ya_metrika_informer")
 def metrikaInformer(site_id) :
-	site_id = helib.validators.common.validNumber(site_id, 0)
+	site_id = ulib.validators.common.validNumber(site_id, 0)
 	informer = ( """
 			<!-- Yandex.Metrika informer -->
 			<a href="http://metrika.yandex.ru/stat/?id=%(site_id)d&amp;from=informer"
@@ -39,7 +39,7 @@ def metrikaInformer(site_id) :
 
 @widgetlib.provides("ya_metrika_counter")
 def metrikaCounter(site_id) :
-	site_id = helib.validators.common.validNumber(site_id, 0)
+	site_id = ulib.validators.common.validNumber(site_id, 0)
 	counter = ( """
 			<!-- Yandex.Metrika counter -->
 			<script type="text/javascript">
@@ -98,8 +98,8 @@ def yaRuButton() :
 @widgetlib.required(js_list=("http://yandex.st/share/share.js",))
 def yaShareButtons(services_list) :
 	services_list = [
-		helib.validators.common.validRange(item, YA_SHARE_SERVICES_LIST)
-		for item in helib.validators.common.validStringList(services_list)
+		ulib.validators.common.validRange(item, YA_SHARE_SERVICES_LIST)
+		for item in ulib.validators.common.validStringList(services_list)
 	]
 	return ( """
 			<div class="yashare-auto-init" data-yashareL10n="ru" data-yashareType="icon"
