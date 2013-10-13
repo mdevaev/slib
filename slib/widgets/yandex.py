@@ -7,7 +7,7 @@ from slib import widgetlib
 
 
 ##### Public constants #####
-YA_SHARE_SERVICES_LIST = (
+YA_SHARE_SERVICES_TUPLE = (
 	"yaru",
 	"vkontakte",
 	"facebook",
@@ -98,7 +98,7 @@ def yaRuButton() :
 @widgetlib.required(js_list=("http://yandex.st/share/share.js",))
 def yaShareButtons(services_list) :
 	services_list = [
-		ulib.validators.common.validRange(item, YA_SHARE_SERVICES_LIST)
+		ulib.validators.common.validRange(item, YA_SHARE_SERVICES_TUPLE)
 		for item in ulib.validators.common.validStringList(services_list)
 	]
 	return ( """

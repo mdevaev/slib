@@ -36,7 +36,7 @@ COMMANDO_LEVELS_MAP = {
 }
 
 
-RANKS_LIST = (
+RANKS_TUPLE = (
 	(0, "Private"),
 	(5, "Junior Lieutenant"),
 	(10, "Lieutenant"),
@@ -256,11 +256,11 @@ def playerRank(stat_dict, user_id, img_url) :
 	wins = stat_dict[user_id]["WinsCount"]
 
 	rank_index = 0
-	player_rank = RANKS_LIST[0][1]
+	player_rank = RANKS_TUPLE[0][1]
 	prev = 0
 	need_next = wins
 
-	for (index, (need, title)) in enumerate(RANKS_LIST[1:]) :
+	for (index, (need, title)) in enumerate(RANKS_TUPLE[1:]) :
 		if wins >= need :
 			player_rank = title
 			rank_index = index
