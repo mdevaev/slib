@@ -13,6 +13,8 @@ import validators.system
 
 
 ##### Private constants #####
+DEFAULT_CONTENT_TYPE = "text/html"
+
 JS_PATTERN = "<script type=\"text/javascript\" src=\"%s\"></script>"
 CSS_PATTERN = "<style type=\"text/css\" media=\"all\">@import \"%s\";</style>"
 
@@ -26,7 +28,7 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 
 	css_list = []
 	js_list = []
-
+	content_type = DEFAULT_CONTENT_TYPE
 	define_args_dict = {}
 
 	for match in re.finditer(r"{([a-zA-Z_]+[^}\n]+)}", text) :
@@ -43,11 +45,13 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 				css_dir_path = resourceDir(args_tuple, css_dir_path)
 			elif name == "__set_js_dir__" :
 				js_dir_path = resourceDir(args_tuple, js_dir_path)
+			elif name == "__set_content_type__" :
+				content_type = contentType(args_tuple, content_type)
 			elif name == "__define_args__" :
 				updateDefineArgs(define_args_dict, args_tuple)
 			else :
 				continue
-			text = text.replace("{%s}" % (match.group(1)), "")
+			text = re.sub(r"\s*{%s}\s*" % (match.group(1)), "", text)
 		else :
 			widget = cache_dict.get(name, {}).get(None, None)
 			if widget is None :
@@ -78,12 +82,13 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 
 			text = text.replace("{%s}" % (match.group(1)), cache_dict[name][args_tuple])
 
-	css = "\n".join(map(lambda arg : makeResourceLink(arg, css_dir_path, CSS_PATTERN), list(set(css_list))))
-	js = "\n".join(map(lambda arg : makeResourceLink(arg, js_dir_path, JS_PATTERN), list(set(js_list))))
+	css = "\n".join([ makeResourceLink(item, css_dir_path, CSS_PATTERN) for item in set(css_list) ])
+	js = "\n".join([ makeResourceLink(item, js_dir_path, JS_PATTERN) for item in set(js_list) ])
+
 	text = text.replace("{__css__}", css)
 	text = text.replace("{__js__}", js)
 
-	return text
+	return (text, content_type)
 
 
 ##### Private methods #####
@@ -109,4 +114,9 @@ def updateDefineArgs(define_args_dict, args_tuple) :
 		return
 	keys_list = helib.validators.common.validStringList(args_list[0])
 	define_args_dict.update(dict.fromkeys(keys_list, tuple(args_list[1:])))
+
+def contentType(args_tuple, old_content_type) :
+	if len(args_tuple) == 1 :
+		return args_tuple[0].strip()
+	return old_content_type
 

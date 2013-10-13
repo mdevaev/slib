@@ -87,8 +87,7 @@ class SlibServer(object) :
 
 		with open(os.path.join(self.__pages_dir_path, page_name)) as page_file :
 			text = page_file.read()
-			text = page.replaceWidgets(text, self.__widgets_list, args_dict, self.__css_dir_path, self.__js_dir_path)
-			return (text, "text/html")
+			return page.replaceWidgets(text, self.__widgets_list, args_dict, self.__css_dir_path, self.__js_dir_path) # (text, content_type)
 
 	def logException(self, env_dict) :
 		request = ( "Protocol: %(SERVER_PROTOCOL)s\n"
