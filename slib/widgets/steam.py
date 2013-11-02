@@ -80,7 +80,7 @@ def communityUserRequest(user_id, api_key) :
 	profile_url = unslash(user_dict["profileurl"])
 
 	return (
-		html.image(avatar_url),
+		avatar_url,
 		player_name,
 		profile_url,
 	)
