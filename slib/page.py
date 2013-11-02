@@ -51,7 +51,7 @@ def replaceWidgets(text, widgets_list, args_dict, css_dir_path, js_dir_path) :
 				updateDefineArgs(define_args_dict, args_tuple)
 			else :
 				continue
-			text = re.sub(r"\s*{%s}\s*" % (match.group(1)), "", text)
+			text = re.sub(r"\s*{%s[^}\n]+}\s*" % (name), "", text)
 		else :
 			widget = cache_dict.get(name, {}).get(None, None)
 			if widget is None :
