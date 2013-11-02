@@ -26,7 +26,7 @@ def serverStatus() :
 @widgetlib.provides("server_df_table")
 @widgetlib.required(css_list=("simple_table.css", "progress_bar.css"))
 def disksFree(dirs_list) :
-	format_size = ( lambda arg : "%s <span class=\"back\">%s</span>" % (tuple(helib.tools.fmt.formatSize(arg).split(" "))) )
+	format_size = ( lambda arg : "%s <span class=\"back\">%s</span>" % (tuple(ulib.tools.fmt.formatSize(arg).split(" "))) )
 	dirs_list = map(ulib.validators.fs.validAccessiblePath, ulib.validators.common.validStringList(dirs_list))
 	rows_list = []
 	for path in dirs_list :
