@@ -26,6 +26,7 @@ def serverStatus() :
 @widgetlib.provides("server_df_table")
 @widgetlib.required(css_list=("simple_table.css", "progress_bar.css"))
 def disksFree(dirs_list) :
+	format_size = ( lambda arg : "%s <span class=\"back\">%s</span>" % (tuple(helib.tools.fmt.formatSize(arg).split(" "))) )
 	dirs_list = map(ulib.validators.fs.validAccessiblePath, ulib.validators.common.validStringList(dirs_list))
 	rows_list = []
 	for path in dirs_list :
@@ -35,9 +36,9 @@ def disksFree(dirs_list) :
 		rows_list.append([
 				{ "nowrap" : None, "body" : label },
 				{ "style" : "width: 70%", "body" : html.progressBar(percent) },
-				{ "nowrap" : None, "body" : ulib.tools.fmt.formatSize(full) },
-				{ "nowrap" : None, "body" : ulib.tools.fmt.formatSize(used) },
-				{ "nowrap" : None, "body" : ulib.tools.fmt.formatSize(full - used) },
+				{ "nowrap" : None, "body" : format_size(full) },
+				{ "nowrap" : None, "body" : format_size(used) },
+				{ "nowrap" : None, "body" : format_size(full - used) },
 			])
 	df_table = html.tableWithHeader(["Label", "", "Size", "Used", "Free"], rows_list)
 	return (df_table,)
